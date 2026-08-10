@@ -1,1 +1,0 @@
-Simple donations pricing app
