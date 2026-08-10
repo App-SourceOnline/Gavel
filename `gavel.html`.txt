@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#121212">
+<title>Gavel</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: #121212; color: #e1e1e1; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; height: 100%; overflow-x: hidden; }
+  header { background: #1e1e1e; padding: 1rem; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+  h1 { margin: 0; font-size: 1.5rem; color: #d4a373; letter-spacing: 1px; }
+  button { cursor: pointer; font-family: inherit; touch-action: manipulation; }
+  .btn { background: #2a2a2a; color: #e1e1e1; border: 1px solid #444; border-radius: 12px; padding: 1rem; font-size: 1rem; min-height: 56px; width: 100%; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.05s, background 0.1s; }
+  .btn:active { transform: scale(0.98); background: #d4a373; color: #121212; }
+  .btn-primary { background: #d4a373; color: #121212; border: none; font-weight: 700; }
+  .btn-primary:active { background: #eac7a3; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 1rem; }
+  .category-btn { aspect-ratio: 1; flex-direction: column; font-size: 1rem; font-weight: 600; }
+  .category-btn span { font-size: 2.5rem; display: block; margin-bottom: 0.25rem; }
+  section { padding: 1rem; max-width: 600px; margin: 0 auto; }
+  #preview { width: 100%; max-height: 320px; object-fit: contain; border-radius: 12px; background: #1e1e1e; margin-bottom: 1rem; display: none; border: 1px solid #333; }
+  label { display: block; margin-bottom: 0.5rem; color: #a0a0a0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+  input[type="text"] { width: 100%; padding: 1rem; font-size: 1rem; background: #1e1e1e; border: 1px solid #444; color: #e1e1e1; border-radius: 12px; margin-bottom: 1rem; outline: none; }
+  input[type="text"]:focus { border-color: #d4a373; }
+  .condition-row { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+  .condition-btn { flex: 1; font-weight: 600; }
+  .condition-btn.active { background: #d4a373; color: #121212; border-color: #d4a373; }
+  .actions { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+  .log-entry { background: #1e1e1e; border: 1px solid #333; border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; }
+  .log-entry h3 { margin: 0 0 0.25rem; color: #d4a373; font-size: 1.1rem; word-break: break-word; }
+  .log-meta { color: #888; font-size: 0.85rem; margin-bottom: 0.75rem; }
+  .log-actions { display: flex; gap: 0.5rem; }
+  .log-actions button { flex: 1; padding: 0.6rem; background: #2a2a2a; border: 1px solid #444; color: #e1e1e1; border-radius: 8px; font-size: 0.9rem; }
+  .back-btn { background: transparent; border: none; color: #d4a373; font-size: 1rem; padding: 0; margin-bottom: 1rem; display: inline-flex; align-items: center; gap: 0.25rem; font-weight: 600; }
+  .empty-state { text-align: center; color: #666; padding: 2rem; font-style: italic; }
+  #fileInput { display: none; }
+  .snap-btn { margin-bottom: 0.5rem; }
+  .helper { color: #666; font-size: 0.85rem; margin-bottom: 1rem; font-style: italic; }
+</style>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiR2F2ZWwiLCJzaG9ydF9uYW1lIjoiR2F2ZWwiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzEyMTIxMiIsInRoZW1lX2NvbG9yIjoiIzEyMTIxMiJ9">
+</head>
+<body>
+
+<header>
+  <h1>GAVEL</h1>
+  <button onclick="showView('view-history')" style="background:none;border:none;color:#d4a373;font-size:1rem;font-weight:600;">📋 Log</button>
+</header>
+
+<main>
+  <!-- HOME -->
+  <section id="view-home">
+    <p style="text-align:center;color:#888;margin:0.5rem 0 1rem;">Pick a category. Snap the thing.</p>
+    <div class="grid">
+      <button class="btn category-btn" onclick="selectCategory('Furniture')"><span>🪑</span>Furniture</button>
+      <button class="btn category-btn" onclick="selectCategory('Electrical')"><span>⚡</span>Electrical</button>
+      <button class="btn category-btn" onclick="selectCategory('Bric-a-brac')"><span>🏺</span>Bric-a-brac</button>
+      <button class="btn category-btn" onclick="selectCategory('Clothes')"><span>👕</span>Clothes</button>
+      <button class="btn category-btn" onclick="selectCategory('Books')"><span>📚</span>Books</button>
+      <button class="btn category-btn" onclick="selectCategory('Tools')"><span>🔧</span>Tools</button>
+      <button class="btn category-btn" onclick="selectCategory('Toys')"><span>🧸</span>Toys</button>
+      <button class="btn category-btn" onclick="selectCategory('Misc')"><span>📦</span>Misc</button>
+    </div>
+  </section>
+
+  <!-- CAPTURE -->
+  <section id="view-capture" style="display:none;">
+    <button class="back-btn" onclick="resetCapture(true)">← Home</button>
+    <h2 id="catLabel" style="margin-top:0;color:#d4a373;">Category</h2>
+
+    <input type="file" id="fileInput" accept="image/*" capture="environment">
+    <button class="btn btn-primary snap-btn" onclick="document.getElementById('fileInput').click()">📷 Snap Photo</button>
+    <img id="preview" alt="Preview">
+
+    <label>What is it?</label>
+    <input type="text" id="itemName" placeholder="e.g. G-Plan Fresco sideboard">
+    <div class="helper">Tip: Tap "Share to Google Lens" first if you're not sure what it is.</div>
+
+    <label>Condition</label>
+    <div class="condition-row">
+      <button class="btn condition-btn active" data-cond="Good" onclick="setCondition('Good')">Good</button>
+      <button class="btn condition-btn" data-cond="Fair" onclick="setCondition('Fair')">Fair</button>
+      <button class="btn condition-btn" data-cond="Poor" onclick="setCondition('Poor')">Poor</button>
+    </div>
+
+    <div class="actions">
+      <button class="btn" onclick="shareToLens()">🔍 Share to Google Lens</button>
+      <button class="btn" onclick="checkEbay()">🏷️ Check eBay Sold</button>
+      <button class="btn btn-primary" onclick="logIt()">💾 Log It</button>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="view-history" style="display:none;">
+    <button class="back-btn" onclick="showView('view-home')">← Home</button>
+    <h2 style="margin-top:0;">Log</h2>
+    <div id="historyList"></div>
+    <button class="btn" onclick="clearAll()" style="margin-top:1rem; border-color:#e57373; color:#e57373;">🗑️ Clear All</button>
+  </section>
+</main>
+
+<script>
+// --- STATE ---
+let currentCategory = '';
+let currentFile = null;
+let currentCondition = 'Good';
+let logs = [];
+const LS_KEY = 'gavel_logs_v1';
+
+const CAT_EMOJI = {
+  'Furniture':'🪑', 'Electrical':'⚡', 'Bric-a-brac':'🏺', 'Clothes':'👕',
+  'Books':'📚', 'Tools':'🔧', 'Toys':'🧸', 'Misc':'📦'
+};
+
+// --- INIT ---
+function init() {
+  try { logs = JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch(e) { logs = []; }
+  renderHistory();
+
+  document.getElementById('fileInput').addEventListener('change', e => {
+    if (e.target.files && e.target.files[0]) {
+      currentFile = e.target.files[0];
+      const url = URL.createObjectURL(currentFile);
+      const preview = document.getElementById('preview');
+      preview.src = url;
+      preview.style.display = 'block';
+    }
+  });
+
+  // Register offline service worker when hosted (not file://)
+  if ('serviceWorker' in navigator && window.location.protocol !== 'file:') {
+    const swCode = `self.addEventListener('install',e=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(clients.claim()));self.addEventListener('fetch',e=>e.respondWith(fetch(e.request).catch(()=>new Response('Offline - no wifi',{status:503,headers:{'Content-Type':'text/plain'}}))))`;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+  }
+}
+
+// --- NAVIGATION ---
+function showView(id) {
+  ['view-home','view-capture','view-history'].forEach(v => {
+    document.getElementById(v).style.display = (v === id) ? 'block' : 'none';
+  });
+}
+
+function selectCategory(cat) {
+  currentCategory = cat;
+  document.getElementById('catLabel').textContent = (CAT_EMOJI[cat]||'') + ' ' + cat;
+  resetCapture(false);
+  showView('view-capture');
+}
+
+function resetCapture(goHome) {
+  currentFile = null;
+  currentCondition = 'Good';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('preview').style.display = 'none';
+  document.getElementById('itemName').value = '';
+  setCondition('Good');
+  if (goHome) showView('view-home');
+}
+
+// --- CONDITION ---
+function setCondition(cond) {
+  currentCondition = cond;
+  document.querySelectorAll('.condition-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cond === cond);
+  });
+}
+
+// --- EBAY URL ---
+function buildEbayUrl(query) {
+  const q = encodeURIComponent(query.trim() || currentCategory);
+  return `https://www.ebay.co.uk/sch/i.html?_nkw=${q}&LH_Sold=1&LH_Complete=1&_sop=13`;
+}
+
+// --- ACTIONS ---
+function shareToLens() {
+  if (!currentFile) { alert('Snap a photo first.'); return; }
+  if (navigator.canShare && navigator.canShare({files: [currentFile]})) {
+    navigator.share({ title: 'Identify with Lens', text: 'What is this thing?', files: [currentFile] }).catch(()=>{});
+  } else {
+    alert('Cannot auto-share from this file.\n\nTip: Open the Google app, tap the Lens icon, and photograph this item.');
+  }
+}
+
+function checkEbay() {
+  const name = document.getElementById('itemName').value;
+  window.open(buildEbayUrl(name), '_blank');
+}
+
+function logIt() {
+  const name = document.getElementById('itemName').value.trim() || currentCategory;
+  const entry = {
+    id: Date.now(),
+    category: currentCategory,
+    name: name,
+    condition: currentCondition,
+    ebayUrl: buildEbayUrl(name),
+    time: new Date().toISOString()
+  };
+  logs.unshift(entry);
+  if (logs.length > 500) logs.pop();
+  localStorage.setItem(LS_KEY, JSON.stringify(logs));
+  renderHistory();
+  alert('Logged: ' + name + ' (' + currentCondition + ')');
+  resetCapture(true);
+}
+
+// --- HISTORY ---
+function renderHistory() {
+  const container = document.getElementById('historyList');
+  if (!logs.length) {
+    container.innerHTML = '<div class="empty-state">No items yet.<br>Go scan some donations.</div>';
+    return;
+  }
+  container.innerHTML = logs.map(log => {
+    const date = new Date(log.time).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    const condColor = log.condition==='Good'?'#81c784':log.condition==='Fair'?'#d4a373':'#e57373';
+    return `<div class="log-entry">
+      <h3>${escapeHtml(log.name)}</h3>
+      <div class="log-meta">${CAT_EMOJI[log.category]||''} ${escapeHtml(log.category)} • <span style="color:${condColor};font-weight:600;">${log.condition}</span> • ${date}</div>
+      <div class="log-actions">
+        <button onclick="openLogEbay(${log.id})">🏷️ eBay Sold</button>
+        <button onclick="deleteLog(${log.id})">❌ Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openLogEbay(id) {
+  const log = logs.find(l => l.id === id);
+  if (log) window.open(log.ebayUrl, '_blank');
+}
+
+function deleteLog(id) {
+  logs = logs.filter(l => l.id !== id);
+  localStorage.setItem(LS_KEY, JSON.stringify(logs));
+  renderHistory();
+}
+
+function clearAll() {
+  if (confirm('Wipe the whole log?')) {
+    logs = [];
+    localStorage.removeItem(LS_KEY);
+    renderHistory();
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+init();
+</script>
+
+</body>
+</html>
